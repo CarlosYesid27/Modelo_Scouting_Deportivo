@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScoutLab | Inteligencia deportiva</title>
+  <style>
+    :root {
+      --ink: #edf4ff;
+      --muted: #91a2bc;
+      --line: rgba(166, 190, 226, .16);
+      --panel: rgba(16, 29, 52, .78);
+      --green: #b7f35b;
+      --cyan: #67d8ff;
+      --orange: #ffb86b;
+      --danger: #ff7d91;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 82% 10%, rgba(52, 126, 201, .28), transparent 31rem),
+        radial-gradient(circle at 12% 90%, rgba(120, 213, 71, .10), transparent 26rem),
+        #07101f;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: .18;
+      pointer-events: none;
+      content: "";
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 80%);
+    }
+
+    .shell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 52px; }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 48px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark {
+      display: grid; width: 40px; height: 40px; place-items: center;
+      border: 1px solid rgba(183,243,91,.45); border-radius: 12px;
+      color: #0b1722; background: var(--green); box-shadow: 0 0 28px rgba(183,243,91,.18);
+      font-size: 19px;
+    }
+    .brand small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; }
+    .status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
+
+    .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 30px; align-items: end; margin-bottom: 34px; }
+    .eyebrow { margin: 0 0 13px; color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { max-width: 650px; margin: 0; font-size: clamp(38px, 5vw, 68px); line-height: .96; letter-spacing: -.07em; }
+    .hero-copy { max-width: 580px; margin: 20px 0 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
+    .hero-note { padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: rgba(12, 27, 49, .55); }
+    .hero-note strong { display: block; margin-bottom: 8px; color: var(--cyan); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+    .hero-note p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 18px; }
+    .card { border: 1px solid var(--line); border-radius: 22px; background: var(--panel); box-shadow: 0 24px 70px rgba(0,0,0,.18); backdrop-filter: blur(18px); }
+    .form-card { padding: 28px; }
+    .card-heading { display: flex; align-items: start; justify-content: space-between; gap: 14px; margin-bottom: 26px; }
+    .card-heading h2 { margin: 0; font-size: 20px; letter-spacing: -.03em; }
+    .card-heading p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .step { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+
+    label { display: block; margin: 18px 0 8px; color: #c6d3e6; font-size: 12px; font-weight: 700; }
+    input, select {
+      width: 100%; padding: 14px 15px; border: 1px solid var(--line); border-radius: 11px;
+      outline: none; color: var(--ink); background: rgba(4, 13, 27, .7); font: inherit; transition: .2s ease;
+    }
+    input:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(103,216,255,.1); }
+    input::placeholder { color: #64758e; }
+    select { cursor: pointer; }
+    option { color: #0c1728; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .hint { margin: 8px 0 0; color: #70829d; font-size: 11px; line-height: 1.45; }
+    button {
+      width: 100%; margin-top: 24px; padding: 15px; border: 0; border-radius: 11px; cursor: pointer;
+      color: #0b1722; background: var(--green); font: inherit; font-weight: 800;
+      transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(183,243,91,.18); }
+    button:disabled { cursor: wait; opacity: .65; transform: none; }
+    .error { min-height: 18px; margin: 13px 0 0; color: var(--danger); font-size: 12px; }
+
+    .result-card { display: flex; min-height: 100%; flex-direction: column; padding: 28px; overflow: hidden; position: relative; }
+    .result-card::after { position: absolute; width: 260px; height: 260px; right: -100px; bottom: -100px; border-radius: 50%; background: rgba(103,216,255,.09); content: ""; }
+    .result-empty { display: grid; flex: 1; min-height: 380px; place-items: center; text-align: center; }
+    .radar { display: grid; width: 92px; height: 92px; margin: 0 auto 20px; place-items: center; border: 1px solid rgba(103,216,255,.35); border-radius: 50%; color: var(--cyan); font-size: 31px; box-shadow: 0 0 0 14px rgba(103,216,255,.04), 0 0 0 28px rgba(103,216,255,.025); }
+    .result-empty h3 { margin: 0 0 8px; font-size: 19px; }
+    .result-empty p { max-width: 280px; margin: 0 auto; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .result-content { position: relative; z-index: 1; }
+    .result-label { margin: 2px 0 6px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .13em; }
+    .player-name { margin: 0 0 28px; font-size: 32px; letter-spacing: -.05em; }
+    .verdict { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+    .verdict span { color: var(--muted); font-size: 13px; }
+    .verdict strong { color: var(--green); font-size: 27px; letter-spacing: -.04em; }
+    .meter-meta { display: flex; justify-content: space-between; margin: 25px 0 10px; color: var(--muted); font-size: 12px; }
+    .meter-meta strong { color: var(--ink); font-size: 17px; }
+    .meter { height: 12px; overflow: hidden; border-radius: 99px; background: #1b2b43; }
+    .meter-fill { width: 0%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--green)); transition: width 1s cubic-bezier(.2,.8,.2,1); }
+    .confidence { margin-top: 25px; padding: 14px; border-radius: 12px; color: #b9c9de; background: rgba(103,216,255,.06); font-size: 12px; line-height: 1.5; }
+    .confidence b { color: var(--cyan); }
+    .footer { margin-top: 22px; color: #60728d; font-size: 11px; text-align: center; }
+
+    @media (max-width: 780px) {
+      .shell { width: min(100% - 28px, 620px); padding-top: 22px; }
+      .topbar { margin-bottom: 34px; }
+      .status { display: none; }
+      .hero, .workspace { grid-template-columns: 1fr; }
+      .hero { gap: 22px; }
+      h1 { font-size: 50px; }
+      .result-empty { min-height: 270px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">✦</div>
+        <div>ScoutLab <small>football intelligence</small></div>
+      </div>
+      <div class="status" id="api-status"><span class="status-dot" style="background:#71809a;box-shadow:none"></span> Comprobando motor...</div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Perfil de mercado · modelo RF</p>
+        <h1>Encuentra el próximo jugador diferencial.</h1>
+        <p class="hero-copy">Una lectura rápida del potencial de élite a partir de la edad, la estatura y la posición del candidato.</p>
+      </div>
+      <aside class="hero-note">
+        <strong>Cómo funciona</strong>
+        <p>El modelo compara el perfil ingresado con patrones aprendidos de jugadores profesionales y devuelve un índice de afinidad estimado.</p>
+      </aside>
+    </section>
+
+    <section class="workspace">
+      <form class="card form-card" id="scouting-form">
+        <div class="card-heading">
+          <div><h2>Nuevo informe</h2><p>Completa el perfil del candidato.</p></div>
+          <span class="step">01 / INPUT</span>
+        </div>
+
+        <label for="jugador">Nombre del jugador</label>
+        <input id="jugador" name="jugador" type="text" placeholder="Ej. Mateo García" required minlength="1">
+
+        <label for="posicion">Posición principal</label>
+        <select id="posicion" name="posicion" required>
+          <option value="" selected disabled>Selecciona una posición</option>
+          <option value="Attack">Delantero</option>
+          <option value="Defender">Defensa</option>
+          <option value="Goalkeeper">Portero</option>
+          <option value="Midfield">Mediocampista</option>
+        </select>
+
+        <div class="split">
+          <div>
+            <label for="edad">Edad</label>
+            <input id="edad" name="edad" type="text" inputmode="numeric" pattern="[0-9]+" placeholder="22" required>
+          </div>
+          <div>
+            <label for="estatura_cm">Estatura <span style="color:#70829d">(opcional)</span></label>
+            <input id="estatura_cm" name="estatura_cm" type="text" inputmode="decimal" placeholder="180 o 180,5">
+          </div>
+        </div>
+        <p class="hint">Edad: solo números enteros, mínimo 17. Estatura: número en cm, admite coma o punto decimal (ej. 180,5 o 180.5), o puede omitirse.</p>
+        <button id="submit-button" type="submit">Analizar perfil <span aria-hidden="true">→</span></button>
+        <p class="error" id="error-message" role="alert"></p>
+      </form>
+
+      <section class="card result-card" aria-live="polite">
+        <div class="result-empty" id="empty-state">
+          <div><div class="radar">⌁</div><h3>Esperando un perfil</h3><p>El resultado del análisis aparecerá aquí cuando envíes los datos.</p></div>
+        </div>
+        <div class="result-content" id="result-content" hidden>
+          <p class="result-label">Reporte generado</p>
+          <h2 class="player-name" id="result-player"></h2>
+          <div class="verdict"><span>Clasificación del modelo</span><strong id="result-prediction"></strong></div>
+          <div class="meter-meta"><span>Índice de afinidad con el perfil élite</span><strong id="result-percentage"></strong></div>
+          <div class="meter"><div class="meter-fill" id="meter-fill"></div></div>
+          <div class="confidence"><b>Lectura ScoutLab:</b> <span id="confidence-text"></span> Este índice sirve para comparar candidatos; no representa una probabilidad literal.</div>
+        </div>
+      </section>
+    </section>
+    <p class="footer">ScoutLab · herramienta de apoyo para decisiones de scouting · no sustituye la evaluación deportiva profesional</p>
+  </main>
+
+  <script>
+    const form = document.getElementById("scouting-form");
+    const button = document.getElementById("submit-button");
+    const errorMessage = document.getElementById("error-message");
+    const emptyState = document.getElementById("empty-state");
+    const resultContent = document.getElementById("result-content");
+    const apiStatus = document.getElementById("api-status");
+    const apiUrl = "http://127.0.0.1:8000/predict";
+    const healthUrl = "http://127.0.0.1:8000/health";
+
+    function confidenceMessage(score) {
+      if (score >= 65) return "Perfil Élite con señales fuertes de pertenencia al segmento.";
+      if (score >= 50) return "Perfil Élite en el límite: conviene respaldarlo con observación técnica y táctica.";
+      if (score >= 35) return "Perfil Estándar cercano al límite: vale la pena seguirlo.";
+      return "Perfil Estándar con señales débiles de élite.";
+    }
+
+    async function checkApiHealth() {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      try {
+        const response = await fetch(`${healthUrl}?t=${Date.now()}`, {
+          signal: controller.signal,
+          cache: "no-store"
+        });
+        if (!response.ok) throw new Error("API no disponible");
+        apiStatus.innerHTML = '<span class="status-dot"></span> Motor de evaluación activo';
+      } catch (error) {
+        const message = error.name === "AbortError"
+          ? "Tiempo de espera agotado"
+          : "API desconectada";
+        apiStatus.innerHTML = `<span class="status-dot" style="background:var(--danger);box-shadow:0 0 12px var(--danger)"></span> ${message}`;
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      errorMessage.textContent = "";
+      button.disabled = true;
+      button.textContent = "Analizando perfil...";
+
+      const edadTexto = document.getElementById("edad").value.trim();
+      const estaturaTexto = document.getElementById("estatura_cm").value.trim();
+      const mostrarError = (mensaje) => {
+        errorMessage.textContent = mensaje;
+        button.disabled = false;
+        button.innerHTML = 'Analizar perfil <span aria-hidden="true">→</span>';
+      };
+
+      if (!/^[0-9]+$/.test(edadTexto)) {
+        mostrarError("La edad debe ser un número entero, sin puntos ni comas.");
+        return;
+      }
+      const edad = Number(edadTexto);
+      if (!Number.isSafeInteger(edad) || edad < 17 || edad > 45) {
+        mostrarError("La edad debe estar entre 17 y 45 años.");
+        return;
+      }
+      let estatura = null;
+      if (estaturaTexto !== "") {
+        if (!/^[0-9]+(?:[.,][0-9]+)?$/.test(estaturaTexto)) {
+          mostrarError("La estatura debe ser numérica; usa coma o punto para decimales (ej. 180,5).");
+          return;
+        }
+        estatura = Number(estaturaTexto.replace(",", "."));
+        if (!Number.isFinite(estatura) || estatura < 140 || estatura > 230) {
+          mostrarError("La estatura debe estar entre 140 y 230 cm.");
+          return;
+        }
+      }
+      const payload = {
+        jugador: document.getElementById("jugador").value.trim(),
+        posicion: document.getElementById("posicion").value,
+        edad,
+        estatura_cm: estatura
+      };
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          const detail = Array.isArray(data.detail) ? "Revisa los campos ingresados." : data.detail;
+          throw new Error(detail || "No fue posible analizar el perfil.");
+        }
+
+        const score = Number(data.porcentaje_probabilidad_elite);
+        document.getElementById("result-player").textContent = data.jugador;
+        document.getElementById("result-prediction").textContent = data.prediccion;
+        document.getElementById("result-percentage").textContent = `${score.toFixed(2)}%`;
+        document.getElementById("confidence-text").textContent = confidenceMessage(score);
+        emptyState.hidden = true;
+        resultContent.hidden = false;
+        const fill = document.getElementById("meter-fill");
+        fill.style.width = "0%";
+        void fill.offsetWidth;
+        fill.style.width = `${Math.min(Math.max(score, 0), 100)}%`;
+      } catch (error) {
+        errorMessage.textContent = error instanceof TypeError
+          ? "No se pudo conectar con la API. Verifica que FastAPI esté ejecutándose."
+          : error.message;
+      } finally {
+        button.disabled = false;
+        button.innerHTML = 'Analizar perfil <span aria-hidden="true">→</span>';
+      }
+    });
+
+    checkApiHealth();
+    setInterval(checkApiHealth, 5000);
+  </script>
+</body>
+</html>
